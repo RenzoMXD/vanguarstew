@@ -12,10 +12,11 @@ All notable changes to this project are documented here. The format is based on
   reachable only from an unmerged branch can no longer leak into `releases` as knowable-at-T.
   Mirrors the reachability guard `benchmark/freeze.py::build_context` already applies (#256).
 - `benchmark/score.py::_tokens` and `is_release_subject` now treat a non-string plan-item
-  field (`title`/`theme`/`kind`) as carrying no signal instead of raising. Both used the
+  field (`title`/`theme`/`kind`) as carrying no signal instead of raising, and
+  `_plan_tokens` applies the same guard to individual `files` entries. All three used the
   `(text or "").method()` idiom, which only falls back for falsy input — a truthy
-  non-string value (a list/dict an LLM might emit) reached `.lower()`/regex methods and
-  crashed `objective_score()`, which `run_replay()` calls with no surrounding
+  non-string value (a list/dict an LLM might emit) reached `.lower()`/`.replace()`/regex
+  methods and crashed `objective_score()`, which `run_replay()` calls with no surrounding
   `try/except`, so one malformed field crashed the entire replay run (#251).
 - Benchmark hygiene: `benchmark/taskgen.py::revealed_window` now parses changed-file
   lists from NUL-delimited `git show --name-only -z` output via a reusable

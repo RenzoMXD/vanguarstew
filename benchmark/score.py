@@ -118,9 +118,12 @@ def _plan_tokens(plan) -> set:
                 | _tokens(item.get("kind", ""))
             # Structured `files` are part of a concrete plan item (the judge counts them
             # toward substance); tokenize path segments so module recall can match on the
-            # top-level module even when the title omits it.
+            # top-level module even when the title omits it. Entries are LLM-emitted like
+            # title/theme/kind, so a non-string entry (e.g. a nested list/dict) is skipped
+            # rather than crashing `.replace()` -- same contract as `_tokens`.
             for path in item.get("files") or []:
-                toks |= _tokens((path or "").replace("/", " "))
+                if isinstance(path, str):
+                    toks |= _tokens(path.replace("/", " "))
         else:
             toks |= _tokens(str(item))
     return toks

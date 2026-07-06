@@ -75,6 +75,16 @@ def test_module_recall_tolerates_non_string_title_theme_kind():
     assert set(res["matched_modules"]) == {"plugins", "readme"}
 
 
+def test_module_recall_tolerates_non_string_files_entries():
+    # `files` entries are LLM-emitted like title/theme/kind (fails on old code:
+    # AttributeError from `.replace()` on a non-string entry).
+    revealed = [{"subject": "fix: race in loader", "files": ["core/loader.py"]}]
+    plan = [{"title": "harden concurrency", "kind": "bugfix",
+             "files": ["core/loader.py", ["nested", "list"], {"path": "core/loader.py"}, 42]}]
+    res = module_recall(plan, revealed)
+    assert res["matched_modules"] == ["core"]
+
+
 def test_release_signals():
     assert release_signaled(REVEALED) is True
     assert release_predicted([{"title": "cut release", "kind": "release"}]) is True
